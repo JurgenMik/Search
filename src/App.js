@@ -6,6 +6,7 @@ import Result from './components/Result';
 function App() {
 
     const [search, setSearch] = useState(null);
+    const [view, setView] = useState(false);
     const [searchResult, setResult] = useState({
         name: '',
         age: 0,
@@ -15,14 +16,19 @@ function App() {
     useEffect(() => {
        const timeout = setTimeout(() => {
            handleGET();
-       }, 750);
+       }, 500);
        return () => clearTimeout(timeout);
     }, [search]);
 
     const handleGET = () => {
         axios.get('http://localhost:3001/search', {params : {query : search}})
             .then(response => {
-               setResult((prev) => response.data.searchResult);
+                if (Object.keys(response.data.searchResult).length !== 0) {
+                    setResult((prev) => response.data.searchResult);
+                    setView(true);
+                } else {
+                    setView(false);
+                }
             })
     }
 
@@ -37,13 +43,15 @@ function App() {
                     <MdSearch className="absolute text-3xl left-6 text-gray-400" />
                     <input
                       type="text"
-                      className="w-full p-6 pl-16 border border-gray-300 rounded-full text-lg placeholder-black tracking-widest"
+                      className="w-full p-6 pl-16 border border-gray-300 rounded-md text-lg placeholder-black tracking-widest"
                       name="search"
                       placeholder="Search from the database..."
                       onChange={e => setSearch(e.target.value)}
                     />
                 </div>
-
+                <div className="w-full flex justify-center">
+                    {view ? <Result data={searchResult} /> : null}
+                </div>
             </div>
         </div>
     </div>
